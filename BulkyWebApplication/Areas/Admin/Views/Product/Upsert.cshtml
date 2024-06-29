@@ -66,7 +66,6 @@
                             <input type="file" name="file" class="form-control border-0 shadow" />
                             <label asp-for="Product.ImageUrl" class="ms-2"></label>
                         </div>
-
                         <div class="row">
                             <div class="col-6 col-md-3">
                                 @if (Model.Product.Id != 0)
@@ -99,21 +98,12 @@
 
 
 
-
-
             @section Scripts{
                 <script>
                     tinymce.init({
                         selector: 'textarea',
                         plugins: 'anchor autolink charmap codesample emoticons lists table visualblocks wordcount',
-                        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap',
-                        tinycomments_mode: 'embedded',
-                        tinycomments_author: 'Author name',
-                        mergetags_list: [
-                            { value: 'First.Name', title: 'First Name' },
-                            { value: 'Email', title: 'Email' },
-                        ],
-                        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+                        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap',
                     });
                 </script>
                 @{
