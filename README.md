@@ -171,10 +171,10 @@ The connection string lives in `BulkyWebApplication/appsettings.json` under
 }
 ```
 
-> The project currently points at `Server=TravisH\\SQLEXPRESS` — a specific PC's SQL Express
-> instance. That only works on that machine. On any other machine (or after a reinstall)
-> the app will build but fail at runtime with a database-connection error. Switching to
-> `(localdb)\mssqllocaldb` avoids that.
+> `DefaultConnection` is already set to `(localdb)\mssqllocaldb`, so it works on any machine
+> with Visual Studio / LocalDB installed — no machine-specific SQL instance required. (It
+> previously pointed at `Server=TravisH\\SQLEXPRESS`, a specific PC's SQL Express instance,
+> which only worked on that one machine.)
 
 ---
 
