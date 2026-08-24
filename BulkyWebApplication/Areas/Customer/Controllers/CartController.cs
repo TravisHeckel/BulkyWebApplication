@@ -1,4 +1,4 @@
-﻿using Bulky.DataAccess.Repository.IRepository;
+using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
 using Bulky.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -8,17 +8,21 @@ using System.Security.Claims;
 
 namespace BulkyWebApplication.Areas.Customer.Controllers
 {
+    // The shopping cart screens. [Authorize] on the whole controller means every action
+    // here requires a logged-in user (you can't have a cart without an account).
     [Area("customer")]
     [Authorize]
     public class CartController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        // Held as a property so the Index action can populate it and hand it to the view.
         public ShoppingCartVM ShoppingCartVM { get; set; }
         public CartController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
+        // Show every cart line for the current user and compute the order total.
         public IActionResult Index()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -26,9 +30,11 @@ namespace BulkyWebApplication.Areas.Customer.Controllers
 
             ShoppingCartVM = new()
             {
+                // Only this user's lines, and Include the Product so we can read its prices/name.
                 ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId, includeProperties: "Product")
             };
 
+            // Set each line's price by quantity tier, and accumulate the grand total.
             foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
                 cart.Price = GetPriceBasedOnQuantity(cart);
@@ -40,13 +46,10 @@ namespace BulkyWebApplication.Areas.Customer.Controllers
 
         public IActionResult Summary()
         {
-
             return View();
         }
 
-
-
-
+        // Increase the quantity of a cart line by 1.
         public IActionResult Plus(int cartId)
         {
             var cartFromDb = _unitOfWork.ShoppingCart.Get(u=>u.Id==cartId);
@@ -56,6 +59,7 @@ namespace BulkyWebApplication.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Decrease quantity by 1 - but if it would drop below 1, remove the line entirely.
         public IActionResult Minus(int cartId)
         {
             var cartFromDb = _unitOfWork.ShoppingCart.Get(u=>u.Id==cartId);
@@ -74,6 +78,7 @@ namespace BulkyWebApplication.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Remove a cart line outright.
         public IActionResult Remove(int cartId)
         {
             var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);
@@ -82,9 +87,10 @@ namespace BulkyWebApplication.Areas.Customer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
-
+        // The store's tiered pricing rule:
+        //   1-50 units  -> Price
+        //   51-100      -> Price50
+        //   100+        -> Price100
         private double GetPriceBasedOnQuantity(ShoppingCart shoppingCart)
         {
             if (shoppingCart.Count <= 50)
