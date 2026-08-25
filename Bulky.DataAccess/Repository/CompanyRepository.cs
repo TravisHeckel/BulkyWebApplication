@@ -1,4 +1,4 @@
-﻿using Bulky.DataAccess.Data;
+using Bulky.DataAccess.Data;
 using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
 using System;
@@ -10,18 +10,19 @@ using System.Threading.Tasks;
 
 namespace Bulky.DataAccess.Repository
 {
+    // Inherits generic CRUD from Repository<Company>; adds a simple whole-row Update.
     public class CompanyRepository : Repository<Company>, ICompanyRepository
     {
         private ApplicationDbContext _db;
 
         public CompanyRepository(ApplicationDbContext db) : base(db)
         {
-            _db = db; 
+            _db = db;
         }
 
         public void Update(Company obj)
         {
-            _db.Companies.Update(obj);
+            _db.Companies.Update(obj); // staged; persisted by UnitOfWork.Save()
         }
     }
 }

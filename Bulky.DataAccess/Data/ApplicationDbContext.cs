@@ -1,28 +1,37 @@
-﻿using Bulky.Models;
+using Bulky.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore; // IdentityDbContext
+using Microsoft.EntityFrameworkCore;                     // DbContext, DbSet, ModelBuilder
 
 namespace Bulky.DataAccess.Data
 {
+    // The DbContext is EF Core's bridge between your C# classes and the SQL database.
+    // We inherit from IdentityDbContext (not plain DbContext) so that all the Identity
+    // login tables (AspNetUsers, AspNetRoles, etc.) are created for us automatically.
     public class ApplicationDbContext: IdentityDbContext<IdentityUser>
     {
+        // This constructor receives the database options (connection string, provider)
+        // from Program.cs via dependency injection. You never call "new" on this yourself.
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-
         }
 
+        // Each DbSet<T> becomes a table and is your query entry point, e.g. _db.Categories.
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
-        
+        // OnModelCreating runs when EF builds its model. Here we use it to SEED starter data:
+        // rows written into the migration so the database is pre-populated on creation.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Must call base first so Identity can configure its own tables.
             base.OnModelCreating(modelBuilder);
 
+            // HasData(...) inserts these rows via migrations. Because we hard-code the Ids,
+            // EF can tell on later migrations whether a seed row was added/changed/removed.
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
@@ -32,13 +41,13 @@ namespace Bulky.DataAccess.Data
             modelBuilder.Entity<Company>().HasData(
                 new Company { Id = 1, Name = "Tech Solutions", StreetAddress ="123 Tech St", City="Tech City", PostalCode="12121", State="IL", PhoneNumber="6669990000"},
                 new Company {
-                    Id = 2, 
-                    Name = "Vivid Books", 
-                    StreetAddress = "999 Vid St", 
-                    City = "Vid City", 
-                    PostalCode = "66666", 
-                    State = "IL", 
-                    PhoneNumber = "7779990000" 
+                    Id = 2,
+                    Name = "Vivid Books",
+                    StreetAddress = "999 Vid St",
+                    City = "Vid City",
+                    PostalCode = "66666",
+                    State = "IL",
+                    PhoneNumber = "7779990000"
                 },
                 new Company
                 {
@@ -52,6 +61,7 @@ namespace Bulky.DataAccess.Data
                 }
                 );
 
+            // Six seed books spread across the three categories above.
             modelBuilder.Entity<Product>().HasData(
                 new Product
                 {
